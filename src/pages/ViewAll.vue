@@ -50,6 +50,7 @@ export default defineComponent({
         items.value.push(...data);
         localStorage.setItem(ITEMS_LS_KEY, JSON.stringify(items.value));
         $q.notify({
+          timeout: 2500,
           position: 'bottom-right',
           type: 'positive',
           message: `Ai adăugat ${data.length} idei de mâncare.`,
@@ -61,6 +62,7 @@ export default defineComponent({
         items.value.splice(index, 1);
         localStorage.setItem(ITEMS_LS_KEY, JSON.stringify(items.value));
         $q.notify({
+          timeout: 2500,
           position: 'bottom-right',
           type: 'info',
           message: `${item.name} a fost șters.`,

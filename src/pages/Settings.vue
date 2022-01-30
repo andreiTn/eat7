@@ -108,6 +108,7 @@ export default defineComponent({
       list.value = useStoredList().value;
 
       $q.notify({
+        timeout: 2500,
         position: 'bottom-right',
         type: 'info',
         message: `Toate datele au fost șterse.`,
@@ -131,6 +132,7 @@ export default defineComponent({
         list.value = useStoredList().value;
 
         $q.notify({
+          timeout: 2500,
           position: 'bottom-right',
           type: 'info',
           message: `Date implicite adăugate.`,

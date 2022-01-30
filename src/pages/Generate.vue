@@ -4,7 +4,7 @@
 
     <p class="text-negative q-my-md" v-if="error">{{ error }}</p>
 
-    <span class="text-grey-7">{{ validFrom }} - {{ validTo }}</span>
+    <h4 class="text-grey-7 text-italic">{{ validFrom }} - {{ validTo }}</h4>
     <q-stepper
       v-if="canShowStepper"
       flat
@@ -147,6 +147,11 @@ import { useRouter } from 'vue-router';
 import { date, QStepper, useQuasar } from 'quasar';
 import { Item, GeneratedList } from 'components/models';
 import { useStoredItems, LIST_LS_KEY, LIST_LENGTH } from 'src/composables/stored';
+import { useDateToFrom } from 'src/composables/useDateToFrom';
+import {
+  addDaysToDate,
+  stringToTimestamp, formatDate
+} from 'src/util/date';
 import ItemRow from 'components/ItemRow.vue';
 
 function useGenerateModel(): Ref<GeneratedList> {
@@ -206,7 +211,7 @@ export default defineComponent({
       const items = useStoredItems();
       return items.value.length >= LIST_LENGTH;
     });
-    const dateModel = ref(new Date().toLocaleString());
+    const dateModel = ref(formatDate(new Date()));
     const proxyDate = ref(dateModel.value);
 
     function setDefaultModel() {
@@ -236,6 +241,7 @@ export default defineComponent({
         await router.push('/');
 
         $q.notify({
+          timeout: 2500,
           position: 'bottom-right',
           type: 'info',
           message: 'Listă generată.',
@@ -249,9 +255,10 @@ export default defineComponent({
 
     function addItemDate() {
       formData.value.items = formData.value.items.map((item, index) => {
-        const itemDate = date.addToDate(formData.value.createdAt, { days: index });
-        item.dayString = days[itemDate.getDay()];
-        item.dateString = itemDate.toLocaleDateString();
+        const itemDate = addDaysToDate(formData.value.createdAt, index);
+        const d = new Date(itemDate);
+        item.dayString = days[d.getDay()];
+        item.dateString = formatDate(d);
 
         return item;
       });
@@ -296,8 +303,7 @@ export default defineComponent({
 
     return {
       emptyListMessage: `Te rugăm sa adaugi cel puțin ${LIST_LENGTH} idei de mâncare.`,
-      validFrom: computed(() => new Date(formData.value.createdAt).toLocaleDateString()),
-      validTo: computed(() => new Date(formData.value.expiresAt).toLocaleDateString()),
+      ...useDateToFrom(formData),
       canShowStepper,
       step,
       form,
@@ -311,15 +317,10 @@ export default defineComponent({
       },
       saveDate() {
         dateModel.value = proxyDate.value
-        const [d, m, y] = dateModel.value.split('/');
-        formData.value.createdAt = date.buildDate({
-          date: parseInt(d, 10),
-          month: parseInt(m, 10),
-          year: parseInt(y, 10),
-        }).getTime();
-        formData.value.expiresAt = date
-          .addToDate(formData.value.createdAt, { days: LIST_LENGTH })
-          .getTime();
+
+        formData.value.createdAt = stringToTimestamp(dateModel.value);
+        formData.value.expiresAt = addDaysToDate(formData.value.createdAt, LIST_LENGTH);
+        console.log(formData.value);
       },
       nextStep,
       generate,

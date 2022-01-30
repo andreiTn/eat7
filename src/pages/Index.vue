@@ -20,7 +20,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent } from 'vue';
+import { useDateToFrom } from 'src/composables/useDateToFrom';
 import { useStoredList } from 'src/composables/stored';
 import ItemRow from 'components/ItemRow.vue';
 
@@ -31,8 +32,7 @@ export default defineComponent({
     const list = useStoredList();
 
     return {
-      validFrom: computed(() => new Date(list.value.createdAt).toLocaleDateString()),
-      validTo: computed(() => new Date(list.value.expiresAt).toLocaleDateString()),
+      ...useDateToFrom(list),
       list,
     };
   }
