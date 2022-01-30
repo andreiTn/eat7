@@ -12,45 +12,48 @@
     <q-dialog v-model="modal" @hide="setDefaultModel">
       <q-card>
         <q-card-section class="flex items-center">
-          <h3>Adaugă o idee</h3>
+          <h3>{{ $t('items.title') }}</h3>
           <q-space />
           <q-btn flat round size="sm" icon="close" v-close-popup />
         </q-card-section>
 
         <q-card-section>
           <q-form @submit.prevent.stop ref="form" style="width: 320px">
-            <p class="text-negative" v-if="labelExists">
-               {{ createModel.name }} există deja. Te rugăm să adaugi alt nume.
-            </p>
 
             <div
               v-for="(item, i) in createModel"
               :key="item.id"
               class="q-mb-md"
             >
+              <p class="text-negative" v-if="labelExists[i]">
+                {{ $t('items.labelExists', { name: item.name }) }}
+              </p>
               <q-input
                 dense
                 outlined
-                :autofocus="i === 0"
+                autofocus
                 v-model="item.name"
-                label="Nume"
+                :label="$t('items.name')"
                 lazy-rules
-                :rules="[ uniqueLabel, val => val && val.length > 0 || 'Te rugăm să adaugi un nume']"
-              />
-
-              <!--              <q-input-->
-              <!--                v-model="item.description"-->
-              <!--                dense-->
-              <!--                outlined-->
-              <!--                label="Descriere"-->
-              <!--              />-->
+                :rules="[ uniqueLabel, val => val && val.length > 0 || $t('items.requiredName') ]"
+              >
+                <template #after>
+                  <q-btn
+                    flat
+                    size="sm"
+                    icon="delete"
+                    @click="removeFormItem(i)"
+                  />
+                </template>
+              </q-input>
             </div>
             <q-btn
-              label="Adaugă incă o idee"
-              class="q-mb-md"
-              outline
-              stretch
+              :label="$t('items.addMore')"
+              no-caps
+              flat
               icon="add"
+              color="secondary"
+              class="q-mb-md full-width"
               @click="addFormItem"
             />
           </q-form>
@@ -61,7 +64,7 @@
             no-caps
             unelevated
             color="primary"
-            label="Salvează"
+            :label="$t('submitLabel')"
             @click="addItem"
           />
         </q-card-actions>
@@ -72,9 +75,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref, PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { QForm } from 'quasar';
 import { Item } from 'components/models';
-
 
 function getDefaultModel(): Item {
   return {
@@ -101,6 +104,7 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
     const form = ref(null);
     const modal = ref<boolean>(false);
     const labelExists = ref<boolean>(false);
@@ -113,8 +117,12 @@ export default defineComponent({
 
     function uniqueLabel(val: string) {
       if (props.items?.some((i) => i.name === val)) {
-        return `${val} există deja. Te rugăm să adaugi alt nume.`;
+        return t('items.labelExists', { name: val });
       }
+    }
+
+    function removeFormItem(index: number) {
+      createModel.value.splice(index, 1);
     }
 
     function addFormItem() {
@@ -126,6 +134,7 @@ export default defineComponent({
       form,
       createModel,
       modal,
+      removeFormItem,
       uniqueLabel,
       setDefaultModel,
       addFormItem,

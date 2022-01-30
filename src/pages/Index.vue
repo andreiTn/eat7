@@ -1,8 +1,11 @@
 <template>
   <q-page class="q-pa-md">
-    <h1>Vezi lista</h1>
+    <h1>{{ $t('home.title') }}</h1>
     <div v-if="list.items.length">
-      <p>Ce mâncăm în perioada <span class="text-secondary">{{ validFrom }} - {{ validTo }}</span></p>
+      <p>
+        {{ $t('home.subtitle')}}
+        <span class="text-secondary">{{ validFrom }} - {{ validTo }}</span>
+      </p>
 
       <span class="text-caption">{{ list.description }}</span>
       <q-list class="q-my-md">
@@ -11,10 +14,10 @@
     </div>
 
     <p v-else>
-      Nu ai generat o listă. Adaugă niște idei
-      <q-btn to="/view-all" label="aici" color="secondary" />
-      si după generează o listă
-      <q-btn to="/generate" label="aici" color="secondary"/>
+      {{ $t('home.generateItemsMsg') }}
+      <q-btn to="/view-all" :label="$t('hereLabel')" color="secondary" />
+      {{ $t('home.generateListMsg') }}
+      <q-btn to="/generate" :label="$t('hereLabel')" color="secondary"/>
     </p>
   </q-page>
 </template>

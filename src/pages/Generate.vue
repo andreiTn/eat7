@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <h1>Generează o listă de idei</h1>
+    <h1>{{ $t('generate.title') }}</h1>
 
     <p class="text-negative q-my-md" v-if="error">{{ error }}</p>
 
@@ -16,28 +16,43 @@
     >
       <q-step
         :name="1"
-        title="Generează Lista"
+        :title="$t('generate.step1.stepTitle')"
         icon="list"
         :done="step > 1"
       >
-        <h3>Generează lista de idei</h3>
+        <h3>{{ $t('generate.step1.title') }}</h3>
 
         <q-btn
           icon="event"
-          label="Schimbă data"
+          :label="$t('generate.step1.changeDate')"
           outline
           color="secondary"
           class="q-ml-md"
         >
-          <q-popup-proxy @before-show="updateProxy" cover transition-show="scale" transition-hide="scale">
+          <q-popup-proxy
+            @before-show="updateProxy"
+            cover
+            transition-show="scale"
+            transition-hide="scale"
+          >
             <q-date
               v-model="proxyDate"
               color="secondary"
               mask="DD/MM/YYYY"
             >
               <div class="row items-center justify-end q-gutter-sm">
-                <q-btn label="Cancel" flat v-close-popup />
-                <q-btn label="OK" color="secondary" flat @click="saveDate" v-close-popup />
+                <q-btn
+                  flat
+                  v-close-popup
+                  :label="$t('cancelLabel')"
+                />
+                <q-btn
+                  :label="$t('generate.step1.confirmDate')"
+                  color="secondary"
+                  flat
+                  v-close-popup
+                  @click="saveDate"
+                />
               </div>
             </q-date>
           </q-popup-proxy>
@@ -54,7 +69,7 @@
             <template #after>
               <q-checkbox
                 dense
-                label="Păstrează"
+                :label="$t('generate.step1.lock')"
                 color="secondary"
                 v-model="item.locked"
               />
@@ -67,19 +82,19 @@
           no-caps
           unelevated
           color="secondary"
-          label="Generează"
+          :label="$t('generate.step1.generate')"
           @click="generate"
         />
       </q-step>
 
       <q-step
         :name="2"
-        title="Ordonează lista"
-        caption="Opțional"
+        :title="$t('generate.step2.stepTitle')"
+        :caption="$t('generate.step2.caption')"
         icon="sort"
         :done="step > 2"
       >
-        <h3>Sortează lista după zilele săptămânii</h3>
+        <h3>{{ $t('generate.step2.title') }}</h3>
         <draggable
           :list="formData.items"
           item-key="name"
@@ -99,11 +114,11 @@
 
       <q-step
         :name="3"
-        title="Adaugă o descriere"
-        caption="Opțional"
+        :title="$t('generate.step3.stepTitle')"
+        :caption="$t('generate.step2.caption')"
         icon="description"
       >
-        <h3>Adaugă o descriere</h3>
+        <h3>{{ $t('generate.step3.stepTitle') }}</h3>
         <q-input
           dense
           autogrow
@@ -120,21 +135,21 @@
             flat
             color="primary"
             @click="$refs.stepper.previous()"
-            label="Pasul anterior"
+            :label="$t('generate.prevStep')"
           />
           <q-btn
             @click="nextStep"
             color="primary"
-            :label="step === 3 ? 'Salvează' : 'Pasul Următor'"
+            :label="step === 3 ? $t('submitLabel') : $t('generate.nextStep')"
           />
         </q-stepper-navigation>
       </template>
     </q-stepper>
     <div v-else>
-      <p>{{ emptyListMessage }}</p>
+      <p>{{ notEnoughItems }}</p>
       <p>
-        Adaugă niște idei
-        <q-btn to="/view-all" label="aici" color="secondary" />
+        {{ $t('generate.emptyListMessage') }}
+        <q-btn to="/view-all" :label="$t('hereLabel')" color="secondary" />
       </p>
     </div>
   </q-page>
@@ -153,6 +168,7 @@ import {
   stringToTimestamp, formatDate
 } from 'src/util/date';
 import ItemRow from 'components/ItemRow.vue';
+import { useI18n } from 'vue-i18n';
 
 function useGenerateModel(): Ref<GeneratedList> {
   const now = Date.now();
@@ -165,16 +181,6 @@ function useGenerateModel(): Ref<GeneratedList> {
     expiresAt: exp.getTime()
   });
 }
-
-const days = [
-  'Duminică',
-  'Luni',
-  'Marți',
-  'Miercuri',
-  'Joi',
-  'Vineri',
-  'Sâmbătă'
-];
 
 function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length;
@@ -201,6 +207,7 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar();
+    const { t } = useI18n();
     const router = useRouter();
     const step = ref(1);
     const stepper = ref(null);
@@ -224,7 +231,7 @@ export default defineComponent({
       if (step.value === 1) {
         const { items } = formData.value;
         if (!items.length || items.length < LIST_LENGTH) {
-          error.value = 'Te rugăm să generezi câteva idei.';
+          error.value = t('generate.emptyListMessage');
           return;
         }
 
@@ -244,7 +251,7 @@ export default defineComponent({
           timeout: 2500,
           position: 'bottom-right',
           type: 'info',
-          message: 'Listă generată.',
+          message: t('generate.listGenerated'),
         });
       }
 
@@ -257,7 +264,7 @@ export default defineComponent({
       formData.value.items = formData.value.items.map((item, index) => {
         const itemDate = addDaysToDate(formData.value.createdAt, index);
         const d = new Date(itemDate);
-        item.dayString = days[d.getDay()];
+        item.dayString = t(`days.${d.getDay()}`);
         item.dateString = formatDate(d);
 
         return item;
@@ -302,7 +309,7 @@ export default defineComponent({
     });
 
     return {
-      emptyListMessage: `Te rugăm sa adaugi cel puțin ${LIST_LENGTH} idei de mâncare.`,
+      notEnoughItems: t('generate.notEnoughItems', { min: LIST_LENGTH }),
       ...useDateToFrom(formData),
       canShowStepper,
       step,

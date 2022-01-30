@@ -5,11 +5,11 @@
         404
       </div>
 
-      <h2 style="opacity:0.4">Oops. Nothing here...</h2>
+      <h2 style="opacity:0.4">{{ $t('notFound.error') }}</h2>
 
       <q-btn
         to="/"
-        label="Go Home"
+        :label="$t('notFound.btnLabel')"
         no-caps
         unelevated
         color="white"

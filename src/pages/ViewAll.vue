@@ -1,8 +1,8 @@
 <template>
   <q-page class="q-pa-md">
     <div class="flex items-center">
-      <h1 v-if="items.length">Vezi toate ideile</h1>
-      <h1 v-else>Începe să adaugi idei</h1>
+      <h1 v-if="items.length">{{ $t('viewAll.title') }}</h1>
+      <h1 v-else>{{ $t('viewAll.titleEmpty') }}</h1>
 
       <q-space />
       <AddItemModal @submit="onCreate" :items="items" />
@@ -26,7 +26,7 @@
         </template>
       </item-row>
     </q-list>
-    <p v-else>Nu este nimic de afișat. Fă click pe butonul + pentru a adăuga niște idei.</p>
+    <p v-else>{{ $t('viewAll.emptyMessage') }}</p>
   </q-page>
 </template>
 
