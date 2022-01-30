@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useQuasar } from 'quasar';
 import AddItemModal from 'components/AddItemModal.vue';
 import { Item } from 'components/models';
 import { useStoredItems, ITEMS_LS_KEY } from 'src/composables/stored';
@@ -42,21 +43,30 @@ export default defineComponent({
   components: { ItemRow, AddItemModal },
   setup() {
     const items = useStoredItems();
+    const $q = useQuasar();
 
     return {
       onCreate(data: Item[]) {
         items.value.push(...data);
         localStorage.setItem(ITEMS_LS_KEY, JSON.stringify(items.value));
+        $q.notify({
+          position: 'bottom-right',
+          type: 'positive',
+          message: `Ai adăugat ${data.length} idei de mâncare.`,
+        });
+
       },
       removeItem(item: Item) {
         const index = items.value.indexOf(item);
         items.value.splice(index, 1);
         localStorage.setItem(ITEMS_LS_KEY, JSON.stringify(items.value));
+        $q.notify({
+          position: 'bottom-right',
+          type: 'info',
+          message: `${item.name} a fost șters.`,
+        });
       },
       items,
-      user: {
-        firstName: 'Andrei'
-      }
     };
   }
 });

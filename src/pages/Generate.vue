@@ -144,7 +144,7 @@
 import draggable from 'vuedraggable';
 import { defineComponent, onMounted, computed, ref, Ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { date, QStepper } from 'quasar';
+import { date, QStepper, useQuasar } from 'quasar';
 import { Item, GeneratedList } from 'components/models';
 import { useStoredItems, LIST_LS_KEY, LIST_LENGTH } from 'src/composables/stored';
 import ItemRow from 'components/ItemRow.vue';
@@ -195,6 +195,7 @@ export default defineComponent({
     draggable
   },
   setup() {
+    const $q = useQuasar();
     const router = useRouter();
     const step = ref(1);
     const stepper = ref(null);
@@ -233,6 +234,12 @@ export default defineComponent({
       if (step.value === 3) {
         localStorage.setItem(LIST_LS_KEY, JSON.stringify(formData.value));
         await router.push('/');
+
+        $q.notify({
+          position: 'bottom-right',
+          type: 'info',
+          message: 'Listă generată.',
+        });
       }
 
       if (stepper.value) {

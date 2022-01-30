@@ -58,6 +58,8 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 import {
   useStoredItems,
   useStoredList,
@@ -70,6 +72,8 @@ import { useDefaultData, hasDefaultData } from 'src/data/defaultItems';
 export default defineComponent({
   name: 'Settings',
   setup() {
+    const $q = useQuasar();
+    const $router = useRouter();
     const modal = ref(false);
     const items = useStoredItems();
     const list = useStoredList();
@@ -102,6 +106,12 @@ export default defineComponent({
 
       items.value = useStoredItems().value;
       list.value = useStoredList().value;
+
+      $q.notify({
+        position: 'bottom-right',
+        type: 'info',
+        message: `Toate datele au fost șterse.`,
+      });
     }
 
     return {
@@ -119,6 +129,21 @@ export default defineComponent({
 
         items.value = useStoredItems().value;
         list.value = useStoredList().value;
+
+        $q.notify({
+          position: 'bottom-right',
+          type: 'info',
+          message: `Date implicite adăugate.`,
+          actions: [
+            {
+              label: 'Vezi toate datele',
+              color: 'white',
+              handler: async () => {
+                await $router.push('/view-all')
+              }
+            }
+          ]
+        });
       }
     };
   }

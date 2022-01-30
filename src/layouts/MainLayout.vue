@@ -52,7 +52,7 @@ const drawerLinks = [
     link: '/'
   },
   {
-    title: 'Listeaza',
+    title: 'Toate datele',
     link: '/view-all'
   },
   {
